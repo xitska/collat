@@ -31,7 +31,7 @@ namespace collat::kernel {
 	void dummy_thread();
 	uint64_t get_gadget(std::string name);
 
-	// cannot call anything with more than 4 params due to stack limitations 
+	// cannot call anything with more than 15 params due to stack limitations 
 	template<typename T, typename... Args>
 	T call(void* address, Args... args) {
 		HANDLE hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)dummy_thread, nullptr, CREATE_SUSPENDED, nullptr);
