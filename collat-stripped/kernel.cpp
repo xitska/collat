@@ -80,28 +80,6 @@ namespace collat::kernel {
         ) ^ _debug_block_keys[1];
     }
 
-    static BOOL MatchSign2(PUCHAR Data, PUCHAR Sign, int Size)
-    {
-        for (int i = 0; i < Size; i += 1)
-        {
-            if (Sign[i] == 0xff)
-            {
-                // 0xff means to match any value
-                continue;
-            }
-
-            if (Sign[i] != Data[i])
-            {
-                // not matched
-                return FALSE;
-            }
-        }
-
-        return TRUE;
-    }
-
-    
-
     BOOL match_sig_wild(CHAR* buffer, CHAR* signature, SIZE_T signatureSize) {
         for (SIZE_T i = 0; i < signatureSize; i++) {
             if (signature[i] != '\xff' && buffer[i] != signature[i]) {

