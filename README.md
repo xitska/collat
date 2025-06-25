@@ -1,66 +1,54 @@
+# Collat
+Collat is a tool for SystemOS kernel-mode code execution and research, based on [Emma Kirkpatrick](https://x.com/carrot_c4k3)'s [Collateral Damage](https://github.com/exploits-forsale/collateral-damage) exploit. Currently it *only* supports OS version 25398.4909 (and 4908?), though can be *somewhat* easily ported to earlier versions.  
 
-# Collateral Damage
-Collateral Damage is a kernel exploit for Xbox SystemOS using [CVE-2024-30088](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2024-30088).
-It targets Xbox One and Xbox Series consoles running kernel versions 25398.4478, 25398.4908, and 25398.4909. The initial entrypoint is via the Game Script UWP application.
+If you're interested in how this works, I'm aiming to *potentially* write up a blog post, as the Xbox One kernel appears to have some interesting differences when compared to Windows.  
 
-The first stage payloads, PE loader and network loader are provided by [Solstice](https://github.com/exploits-forsale/solstice).
-
-This exploit was developed by [Emma Kirkpatrick](https://x.com/carrot_c4k3) (vulnerability discovery & exploitation) and [Lander Brandt](https://x.com/landaire) (Solstice)
-
-## Disclaimer
-This fork is a **prototype** it isn't nearly finished and has incredibly messy code.  
-Once I'm happy with it's base functionality I'll spend some time cleaning up the code.  
-But just to clarify, as this is a prototype, a lot of features are not completely functional (e.g: kernel module dumper cannot dump *ntoskrnl.exe* headers **yet**).  
-
-## Important Caveats
-
-To place the payload locally on the Xbox console a full-trust explorer like [Adv File Explorer (FullTrust)](https://apps.microsoft.com/detail/9nbnjpsxfsqb) is recommended. Alternatively, the initial payload can be served via a USB keyboard simulator (rubber ducky etc.) and further payload stages can then be loaded over the network.
-
-The reverse shell example provided here requires that your console is connected to a network. When connecting your console to a network be very careful to avoid connecting to the internet and updating. Try to block connectivity to Xbox LIVE as 
-much as possible, at the very least by setting your DNS to invalid servers.
-
-This exploit is not fully reliable. It relies on a CPU side channel as well as a race condition, both of which have the potential to fail. In the event of a failure, the exploit may alert you that it has failed via network output, or the console itself may crash and reboot.
+*Side-note: this project is **not** intended for the end-user, though maybe it can lead to some end-user projects?*
 
 ## Usage
+To use Collat, you need an existing shell on the Xbox with the ability to run unsigned code. I personally suggest using [AnimaSSH](https://github.com/kwsimons/AnimaSSH) or [Silverton](https://github.com/kwsimons/Silverton) but ultimately you should use whatever suits your workflow and situation.   
+*For debug logging, you can pass the `-d` flag on the command line.*
 
-- Modify line 7 of `gamescript_autosave_network.txt` or `gamescript_autosave.txt` to contain the local IP of your PC.
-  - For use with Full-Trust File Explorer App: Copy `gamescript_autosave.txt`, `stage2.bin`, and `run.exe` to the `LocalState` directory of the Game Script application on your Console (`Q:\Users\UserMgr0\AppData\Local\Packages\27878ConstantineTarasenko.458004FD2C47C_c8b3w9r5va522\LocalState\`)
-  - For HID / Keyboard simulator input: Type the contents of `gamescript_autosave_network.txt` into the GameScript window. Serve `stage2.bin` and `run.exe` via `payload_server_win_x64.exe --stage2 stage2.bin --run run.exe`
-- Listen on port 7070 on your PC using netcat or a similar tool (command example: `nc64.exe -lvnp 7070`)
-- Open the Game Script application on your console and select "Show Code Run window" and click "Run code once"
-- If the exploit is success you should see output on your PC that resembles the following:
-```
-listening on [any] 7070 ...
-connect to [192.168.0.61] from (UNKNOWN) [192.168.0.130] 49665
-Collateral Damage - @carrot_c4k3 & @landaire (exploits.forsale)
-Build number: 25398.4478
-Attempting to find kernel base...
-Found likely kernel base: FFFFF80AF9800000
-Attempting exploit...
-Exploit succeeded! Running payload!
+## Building
+To build Collat, simply [build **spdlog**](https://github.com/gabime/spdlog?tab=readme-ov-file#compiled-version-recommended---much-faster-compile-times) and ensure that `spdlog.lib` is placed in `./spdlog/build`.  
+After building *spdlog*, it's as simple as building the Visual Studio project as per usual.  
 
-Microsoft Windows [Version 10.0.25398.4478]
-Copyright (c) Microsoft Corporation. All rights reserved.
+## Example code
+```cpp
+// Calling driver exports (template being return type)
+auto partitionId = collat::kernel::call<uint64_t>("xvio.sys", "XvioGetCurrentPartitionId");
 
-S:\>
-```
+// Calling ntoskrnl.exe exports
+uint64_t variable = 12;
+auto physicalAddress = collat::kernel::call<uint64_t>("ntoskrnl.exe", "MmGetPhysicalAddress", &variable);
 
-## Experimentation
-Lots of additional work is needed to bring this to the point of being a user-friendly tool for loading homebrew onto the Xbox, but I hope that this provides a good starting point :) If you would like to play around with running code as SYSTEM you can put your code in the `post_exploit` function in `post_exploit.c`.
+// Calling unexported functions
+void* functionAddress = collat::kmodule::get_base("ntoskrnl.exe") + 0x13371337;
+collat::kernel::call<uint64_t>(functionAddress, 0x10, 0x4, "arg3");
 
-## Further Work
-There is lots more to do on this, but as the kernel part is done I wanted to share it with the community so developers could start poking around with SYSTEM privileges. Here are a few things that I am still hoping to add in the future:
-- Side loading support
-- Unsigned non-UWP process launching
-- SSH support
+// Reading memory (template being type)
+uint64_t data = collat::kernel::get_ioring()->raw_read<uint64_t>(KERNEL_BASE + 0x883322);
 
-Additional ideas are welcome :)
+auto dosHeader = collat::kernel::get_ioring()->raw_read<IMAGE_DOS_HEADER>(KERNEL_BASE);
+
+// Writing memory (size being derived from template type)
+char null[0x10] = { 0 };
+collat::kernel::get_ioring()-raw_write<char[0x10]>(ADDRESS, &null);
+
+``` 
+
+## Contributing
+If you're in need of something to do and would like to help, a couple things need to be done:
+- Overhaul build system, to simplify building and dependencies
+- Port to earlier OS versions (namely 4478)
+
+If you'd like any extra information to aid contribution, don't hesitate to get in touch :)
 
 ## Thanks
-thank you to everyone who helped me brainstorm and shared their knowledge and time with me throughout this!!! some of those who i would like to show appreciation to:
+This project would have not been possible without a large number of amazing people and sources, some including:
+- [Emma Kirkpatrick](https://x.com/carrot_c4k3) - for the original exploit research, code and help understanding how it works.
+- [Cr4sh](https://github.com/Cr4sh/) - for [*KernelForge*](https://github.com/Cr4sh/KernelForge) which acted as inspiration for this project
+- [Connor McGarr](https://x.com/33y0re) - for his [*No Code Execution? No Problem!*](https://connormcgarr.github.io/hvci/) blog post
+- And everybody in the Xbox One scene!
 
-- chompie
-- tuxuser
-- baw
-- [Xbox One Research](https://xboxoneresearch.github.io/)
-- XBOX-SCENE Discord
+Overall, I learned a lot, so thanks :)
