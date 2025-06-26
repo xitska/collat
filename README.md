@@ -41,7 +41,7 @@ collat::kernel::get_ioring()-raw_write<char[0x10]>(ADDRESS, &null);
 If you're in need of something to do and would like to help, a couple things need to be done:
 - Overhaul build system, to simplify building and dependencies
 - Port to earlier OS versions (namely 4478)
-- Embedding a lightweight interpreter, possibly lua?
+- Embedding a lightweight interpreter, possibly Lua?
 
 If you'd like any extra information to aid contribution, don't hesitate to get in touch :)
 
