@@ -36,6 +36,7 @@ namespace collat::kernel {
 
     uint64_t _pagetable_base = 0;
 
+    // todo: allow for scanning for more gadgets linked in with rop.cpp
     std::map<std::string, std::tuple<std::string, uint64_t>> _gadgets = {
         {"pop rcx; ret",        {"\x59\xC3", 0}},
         {"pop rdx; ret",        {"\x5A\xC3", 0}},
@@ -189,6 +190,7 @@ namespace collat::kernel {
         return false;
     }
 
+    /// @todo Need to create a gadget scan function so we can scan for new gadgets when they're needed and add them to the map 
     bool init_rop() {
         spdlog::debug("scanning for rop gadgets...");
 

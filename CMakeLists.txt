@@ -68,6 +68,7 @@ set(COLLAT_SRC
     src/kernel/ioring.cpp
     src/kernel/nt_offsets.cpp
     src/kernel/moduleinfo.cpp
+    src/kernel/rop.cpp
 
     
 )
