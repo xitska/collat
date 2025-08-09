@@ -61,6 +61,8 @@ collat::kernel::get_ioring()-raw_write<char[0x10]>(ADDRESS, &null);
 ## Contributing
 If you're in need of something to do and would like to help, a couple things need to be done:
 - [x] Overhaul build system, to simplify building and dependencies
+- [ ] Implement the RPC server
+- [ ] Allow for dynamic scanning for gadgets in the ROP builder (when using `.gadget("")`)
 - [ ] Port to earlier OS versions (namely 4478)
 - [ ] Embedding a lightweight interpreter, possibly Lua?
 
