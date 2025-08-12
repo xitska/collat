@@ -55,7 +55,10 @@ auto dosHeader = collat::kernel::get_ioring()->raw_read<IMAGE_DOS_HEADER>(KERNEL
 // Writing memory (size being derived from template type)
 char null[0x10] = { 0 };
 collat::kernel::get_ioring()-raw_write<char[0x10]>(ADDRESS, &null);
+```
 
+### Advanced example
+```cpp
 // Creating and executing a ROP chain with multiple functions
 void* ApcState;
 void* TargetProcess; // Placeholder
@@ -76,8 +79,7 @@ bool result = collat::rop::RopChain()
     )
     .call("ntoskrnl.exe", "KeUnstackDetachProcess", {&ApcState})
     .execute();
-
-``` 
+```
 
 ## Contributing
 If you're in need of something to do and would like to help, a couple things need to be done:
