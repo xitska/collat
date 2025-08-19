@@ -68,7 +68,7 @@ bool result = collat::rop::RopChain()
     .call("ntoskrnl.exe", "KeStackAttachProcess", {TargetProcess, &ApcState}, nullptr)
     .call("ntoskrnl.exe", 
         "MmCopyMemory",
-        { // arugments
+        { // arguments
             0xDEADBEEF,            // TargetAddress
             0xCAFEBABE,            // SourceAddress
             0x1000,                // NumberOfBytes
