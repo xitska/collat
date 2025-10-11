@@ -60,6 +60,10 @@ endif()
 # Setup Collat project
 project(collat VERSION 0.1.0 LANGUAGES C CXX) 
 
+CPMAddPackage(
+    "gh:asmjit/asmjit#master"
+)
+
 set(COLLAT_SRC
     src/collat.cpp
 
