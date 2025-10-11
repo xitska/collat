@@ -18,4 +18,12 @@ namespace collat::hv {
 		fast_hypercall(0x28, nullptr, 0, &partitionId, 8, nullptr);
 		return partitionId;
 	}
+
+	inline uint64_t make_data_page_writeable(uint64_t* PhysicalAddress, size_t PhysicalAddressCount, uint64_t* Output, uint64_t OutputSize, uint64_t* RepCount) {
+		return fast_hypercall(0x34, (void*)PhysicalAddress, PhysicalAddressCount * 8, (void*)Output, OutputSize, RepCount);
+	}
+
+	inline uint64_t make_data_page_readonly(uint64_t* PhysicalAddress, size_t PhysicalAddressCount, uint64_t* Output, uint64_t OutputSize, uint64_t* RepCount) {
+		return fast_hypercall(0x32, (void*)PhysicalAddress, PhysicalAddressCount * 8, (void*)Output, OutputSize, RepCount);
+	}
 }

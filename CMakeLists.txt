@@ -55,8 +55,6 @@ if(COLLAT_ENABLE_RPC)
     endif()
 endif()
 
-
-
 # Setup Collat project
 project(collat VERSION 0.1.0 LANGUAGES C CXX) 
 
@@ -73,6 +71,8 @@ set(COLLAT_SRC
     src/kernel/nt_offsets.cpp
     src/kernel/moduleinfo.cpp
     src/kernel/rop.cpp
+    src/kernel/shellcode.cpp
+    src/kernel/kernelmem.cpp
 
     
 )
@@ -94,7 +94,7 @@ message(NOTICE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(collat PRIVATE "${CMAKE_CURRENT_LIST_DIR}/include" ${CMAKE_CURRENT_BINARY_DIR}/src)
 target_compile_definitions(collat PRIVATE UNICODE _UNICODE)
 
-target_link_libraries(collat PRIVATE spdlog::spdlog phnt ntdll onecoreuap)
+target_link_libraries(collat PRIVATE spdlog::spdlog phnt ntdll onecoreuap asmjit)
 
 if(COLLAT_ENABLE_RPC)
     target_link_libraries(collat PRIVATE capnp-rpc $<$<BOOL:${MINGW}>:ws2_32>)

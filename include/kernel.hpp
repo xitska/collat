@@ -33,6 +33,9 @@ namespace collat::kernel {
 	void dummy_thread();
 	uint64_t get_gadget(std::string name);
 
+	UINT64 get_pte_address(UINT64 virtualAddress);
+	void* map_code_into_kernel(void* code, size_t size);
+
 	// cannot call anything with more than 15 params due to stack limitations 
 	template<typename T, typename... Args>
 	T call(void* address, Args... args) {
