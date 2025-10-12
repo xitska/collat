@@ -59,7 +59,12 @@ endif()
 project(collat VERSION 0.1.0 LANGUAGES C CXX) 
 
 CPMAddPackage(
-    "gh:asmjit/asmjit#master"
+    NAME asmjit
+    GITHUB_REPOSITORY asmjit/asmjit
+    GIT_TAG master 
+    OPTIONS
+        "ASMJIT_STATIC ON"
+        "ASMJIT_BUILD_TEST OFF"
 )
 
 set(COLLAT_SRC
