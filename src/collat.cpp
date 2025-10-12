@@ -19,7 +19,10 @@
 
 #include "rpcserver.h"
 
-
+namespace collat::shellcode{
+void test_process_callback();
+void proc_callback_test();
+}
 
 int main(int argc, char* argv[])
 {
@@ -84,7 +87,7 @@ int main(int argc, char* argv[])
 #endif
     
     // shenanigans go here
-
+    collat::shellcode::proc_callback_test();
 
 exit:
     collat::kernel::destroy_ioring();

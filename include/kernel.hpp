@@ -178,7 +178,7 @@ namespace collat::kernel {
 
 		//Sleep(50); // maybe wait for an event to be triggered by ropchain instead?
 
-		return returnValue;
+		return (T)returnValue;
 	}
 
 	
